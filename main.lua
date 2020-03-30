@@ -1,103 +1,121 @@
+-- main.lua
+
+--[[
+Implements the main logic for the plugin
+--]]
+
+
+
+
+
+--- The SQLite database used for the storage
+-- Initialized in InitDB()
+local gDB
+
+
+
+
+
+--- If the player is not yet in the DB, create an entry for them
+local function MakeSurePlayerIsPresent(aPlayerUuid)
+    assert(type(aPlayerUuid) == "string")
+
+	-- Insert the player; this will fail silently if the player already exists thanks to the UNIQUE constraint
+	gDB:exec('INSERT INTO PlayerBalances (UUID, Balance) VALUES ("' .. aPlayerUuid .. '", 0);')
+end
+
+
+
+
+
+--- Returns the player's current balance
+function GetPlayerBalance(aPlayerUuid)
+    assert(type(aPlayerUuid) == "string")
+
+	MakeSurePlayerIsPresent(aPlayerUuid)
+    for aBal in gDB:urows("SELECT Balance FROM PlayerBalances WHERE UUID='" .. aPlayerUuid .. "';") do
+		LOG("Balance found: " .. aBal)
+        return aBal
+    end
+
+	-- DB error?
+    return false
+end
+
+
+
+
+
+function SetPlayerBalance(aPlayerUuid, aNewBalance)
+    assert(type(aPlayerUuid) == "string")
+    assert(type(aNewBalance) == "number")
+
+	MakeSurePlayerIsPresent(aPlayerUuid)
+    gDB:exec("UPDATE PlayerBalances SET Balance = " .. aNewBalance .. " WHERE UUID = '" .. aPlayerUuid .. "';")
+    return true
+end
+
+
+
+
+
+--- Modifies the player's current balance by the specified amount
+-- Returns the player's new balance on success, false on failure
+function ChangePlayerBalance(aPlayerUuid, aDelta)
+    assert(type(aPlayerUuid) == "string")
+    assert(type(aDelta) == "number")
+
+	-- TODO: Use DB transactions instead to guarantee atomicity
+	MakeSurePlayerIsPresent(aPlayerUuid)
+    local NewBalance = GetPlayerBalance(aPlayerUuid) + aDelta
+    SetPlayerBalance(aPlayerUuid, NewBalance)
+    return NewBalance
+end
+
+
+
+
+
+--- Transfers aAmount from aFromPlayer to aToPlayer, if aFromPlayer has enough funds
+-- Returns true if transfer succeeds, false if not
+function TransferPlayerBalance(aFromPlayerUuid, aToPlayerUuid, aAmount)
+    assert(type(aFromPlayerUuid) == "string")
+    assert(type(aToPlayerUuid) == "string")
+    assert(type(aAmount) == "number")
+
+	-- TODO: Use DB transactions instead to guarantee atomicity
+	MakeSurePlayerIsPresent(aFromPlayerUuid)
+	MakeSurePlayerIsPresent(aToPlayerUuid)
+    if (GetPlayerBalance(aFromPlayerUuid) < aAmount) then
+        return false
+    else
+        ChangePlayerBalance(aFromPlayerUuid, -aAmount)
+        ChangePlayerBalance(aToPlayerUuid, aAmount)
+        return true
+    end
+end
+
+
+
+
+
+--- Opens the DB file and initializes the structure:
+local function InitDB()
+    gDB = sqlite3.open('PlayerBalances.sqlite3')
+	-- TODO: We need a migration from when the table had no UNIQUE constraint
+    gDB:exec("CREATE TABLE IF NOT EXISTS PlayerBalances(UUID text(36) UNIQUE, Balance decimal);")
+end
+
+
+
+
+
+--- The main entrypoint, called by Cuberite upon plugin load
 function Initialize(Plugin)
-	PLUGIN = Plugin;
-	
-	Plugin:SetName("BankAPI");
-	Plugin:SetVersion(1);
-	
-	local cPluginManager = cRoot:Get():GetPluginManager();
-	cPluginManager:AddHook(cPluginManager.HOOK_PLAYER_JOINED, OnPlayerJoined);
-    cPluginManager:AddHook(cPluginManager.HOOK_PLUGINS_LOADED, OnPluginsLoaded);
+	InitDB()
+
+	-- Allow the external API, callable by other plugins:
     dofile(cPluginManager:GetCurrentPlugin():GetLocalFolder() .. "/API/manage.lua")
 
-	LOG("Initialized " .. PLUGIN:GetName() .. " v" .. PLUGIN:GetVersion())
-	return true;
-end
-
-
-
-
-
-function OnPluginsLoaded()
-    cRoot:Get():ForEachPlayer(function (aPlayer)
-        RegisterPlayer(aPlayer)
-    end)
-end
-
-
-
-
-
-
-function OnPlayerJoined(aPlayer)
-    Register(aPlayer)
-end
-
-
-
-function GetPlayerBalance(aPlayer)
-    assert(type(aPlayer) == "userdata", "Player expects a cPlayer")
-    local Bal
-    local DB = sqlite3.open("PlayerBalances.sqlite3")
-    for _, aBal in DB:urows("SELECT * FROM PlayerBalances WHERE UUID='" .. aPlayer:GetUUID() .. "';") do 
-        Bal = aBal
-    end
-    DB:close()
-    return Bal
-end
-
-function SetPlayerBalance(aPlayer, Bal)
-    assert(type(Bal) == "number", "Balance expects a number")
-    assert(type(aPlayer) == "userdata", "Player expects a cPlayer")
-    local DB = sqlite3.open("PlayerBalances.sqlite3")
-    DB:exec("UPDATE PlayerBalances SET BALANCE=" .. Bal .. " WHERE UUID='" .. aPlayer:GetUUID() .. "';")
-    DB:close()
-    return true
-end
-
-function AddPlayerBalance(aPlayer, Bal)
-    assert(type(Bal) == "number", "Balance expects a number")
-    assert(type(aPlayer) == "userdata", "Player expects a cPlayer")
-    local Total = GetBalance(aPlayer) + tonumber(Bal)
-    SetBalance(aPlayer, Total)
-    return true
-end
-
-function RemovePlayerBalance(aPlayer, Bal)
-    assert(type(Bal) == "number", "Balance expects a number")
-    assert(type(aPlayer) == "userdata", "Player expects a cPlayer")
-    local Total = GetBalance(aPlayer) - tonumber(Bal)
-    if not(Bal >= 0) then
-        return false
-    else
-        SetBalance(aPlayer, Total)
-        return true
-    end
-end
-
-function TransferPlayerBalance(aPlayer, bPlayer, Bal)
-    assert(type(Bal) == "number", "Balance expects a number")
-    assert(type(aPlayer) == "userdata", "Player expects a cPlayer")
-    assert(type(bPlayer) == "userdata", "Player expects a cPlayer")
-    if not(GetBalance(aPlayer) >= Bal) then
-        return false
-    else
-        RemoveBalance(aPlayer, Bal)
-        GiveBalance(bPlayer, Bal)
-        return true
-    end
-end
-
-
-
-function RegisterPlayer(aPlayer)
-    local DB = sqlite3.open('PlayerBalances.sqlite3')
-    local aQuery = false
-    DB:exec("CREATE TABLE IF NOT EXISTS PlayerBalances(UUID text(36),BALANCE decimal);")
-    for _ in DB:urows("SELECT * FROM PlayerBalances WHERE UUID='" .. aPlayer:GetUUID() .. "';") do 
-        aQuery = true
-    end
-    if aQuery == false then
-        DB:exec("INSERT INTO PlayerBalances(UUID,BALANCE) VALUES('" .. aPlayer:GetUUID() .. "', " .. 0 .. ");")
-    end
-    DB:close()
+	return true
 end
