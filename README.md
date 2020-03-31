@@ -9,15 +9,16 @@ This plugin provides a storage for players' accounts that other plugins can use 
 
 # Interfacing
 
-To make your plugin use BankAPI, simply add this to your HOOK_PLUGINS_LOADED handler:
+To make your plugin use BankAPI, download and install the plugin.
+Then add this to your HOOK_PLUGINS_LOADED handler:
 ```lua
 dofile(cPluginManager:CallPlugin("BankAPI", "GetExternalAPIPath"))
 ```
 (This can be called multiple times with no ill effects)
 
 Then you can use all the functions in the API/ExternalAPI.lua file. 
-See the individual functions there for their documentation.
-There is also minimal documentation below.
+See below for documentation.
+
 
 
 
@@ -30,10 +31,8 @@ There is also minimal documentation below.
 In order to load BankAPI, download and install the plugin. Then call the following function anywhere in your plugin.
 ```lua
 dofile(cPluginManager:CallPlugin("BankAPI", "GetExternalAPIPath"))
+-- Hooks into BankAPI
 ```
-
-
-
 
 
 The following is a sample of each function that BankAPI provides:
