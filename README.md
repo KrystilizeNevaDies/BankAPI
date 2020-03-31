@@ -66,6 +66,20 @@ PlayersNewBalance = BankSetPlayerBalance(PlayersUUID, Balance)
 
 ```lua
 
+PlayersUUID = cMojangAPI:GetUUIDFromPlayerName("xoft", false)
+-- All functions require player's UUID
+
+Balance = 10 - 5
+
+PlayersNewBalance = BankGetPlayerBalance(PlayersUUID, Balance)
+-- Changes player's balance by the specified amount and returns the new balance
+```
+
+
+##### BankTransferPlayerBalance
+
+```lua
+
 aPlayersUUID = cMojangAPI:GetUUIDFromPlayerName("xoft", false)
 bPlayersUUID = cMojangAPI:GetUUIDFromPlayerName("Krystilize", false)
 -- All functions require player's UUID
@@ -74,19 +88,6 @@ Balance = 10 - 5
 
 PlayersNewBalance = BankGetPlayerBalance(aPlayersUUID, bPlayersUUID, Balance)
 -- Transfers a specific amount from aPlayer to bPlayer, this is safer then using plugin logic due to transactions
-```
-
-##### BankTransferPlayerBalance
-
-```lua
-
-PlayersUUID = cMojangAPI:GetUUIDFromPlayerName("xoft", false)
--- All functions require player's UUID
-
-Balance = 10 - 5
-
-PlayersNewBalance = BankGetPlayerBalance(PlayersUUID, Balance)
--- Changes player's balance by the specified amount and returns the new balance
 ```
 
 
