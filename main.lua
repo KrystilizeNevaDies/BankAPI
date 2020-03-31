@@ -49,9 +49,11 @@ end
 function SetPlayerBalance(aPlayerUuid, aNewBalance)
     assert(type(aPlayerUuid) == "string")
     assert(type(aNewBalance) == "number")
-
+    
+    gDB:exec("BEGIN TRANSACTION")
 	MakeSurePlayerIsPresent(aPlayerUuid)
     gDB:exec("UPDATE PlayerBalances SET Balance = " .. aNewBalance .. " WHERE UUID = '" .. aPlayerUuid .. "';")
+    gDB:exec("COMMIT;")
     return true
 end
 
@@ -65,10 +67,11 @@ function ChangePlayerBalance(aPlayerUuid, aDelta)
     assert(type(aPlayerUuid) == "string")
     assert(type(aDelta) == "number")
 
-	-- TODO: Use DB transactions instead to guarantee atomicity
+	gDB:exec("BEGIN TRANSACTION")
 	MakeSurePlayerIsPresent(aPlayerUuid)
     local NewBalance = GetPlayerBalance(aPlayerUuid) + aDelta
     SetPlayerBalance(aPlayerUuid, NewBalance)
+    gDB:exec("COMMIT;")
     return NewBalance
 end
 
@@ -83,7 +86,7 @@ function TransferPlayerBalance(aFromPlayerUuid, aToPlayerUuid, aAmount)
     assert(type(aToPlayerUuid) == "string")
     assert(type(aAmount) == "number")
 
-	-- TODO: Use DB transactions instead to guarantee atomicity
+    gDB:exec("BEGIN TRANSACTION")
 	MakeSurePlayerIsPresent(aFromPlayerUuid)
 	MakeSurePlayerIsPresent(aToPlayerUuid)
     if (GetPlayerBalance(aFromPlayerUuid) < aAmount) then
@@ -93,6 +96,7 @@ function TransferPlayerBalance(aFromPlayerUuid, aToPlayerUuid, aAmount)
         ChangePlayerBalance(aToPlayerUuid, aAmount)
         return true
     end
+    gDB:exec("COMMIT;")
 end
 
 
