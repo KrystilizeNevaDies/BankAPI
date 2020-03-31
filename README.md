@@ -25,16 +25,16 @@ There is also minimal documentation below.
 
 # API Functions
 
-####Hooking into BankAPI
+#### Hooking into BankAPI
 
 In order to load BankAPI, simply call the following function anywhere in your plugin.
 ```lua
 dofile(cPluginManager:CallPlugin("BankAPI", "GetExternalAPIPath"))
 ```
 
-####The following is a sample of each function that BankAPI provides:
+#### The following is a sample of each function that BankAPI provides:
 
-#####BankGetPlayerBalance
+##### BankGetPlayerBalance
 
 ```lua
 
@@ -45,7 +45,7 @@ PlayersBalance = BankGetPlayerBalance(PlayersUUID)
 -- Gets player's balance
 ```
 
-#####BankSetPlayerBalance
+##### BankSetPlayerBalance
 
 ```lua
 
@@ -56,7 +56,7 @@ PlayersNewBalance = BankSetPlayerBalance(PlayersUUID)
 -- Sets player's balance and returns the new balance
 ```
 
-#####BankChangePlayerBalance
+##### BankChangePlayerBalance
 
 ```lua
 
