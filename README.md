@@ -32,7 +32,7 @@ In order to load BankAPI, simply call the following function anywhere in your pl
 dofile(cPluginManager:CallPlugin("BankAPI", "GetExternalAPIPath"))
 ```
 
-#### The following is a sample of each function that BankAPI provides:
+The following is a sample of each function that BankAPI provides:
 
 ##### BankGetPlayerBalance
 
