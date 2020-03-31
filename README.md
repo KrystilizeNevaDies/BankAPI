@@ -87,7 +87,7 @@ bPlayersUUID = cMojangAPI:GetUUIDFromPlayerName("Krystilize", false)
 Balance = 10 - 5
 
 PlayersNewBalance = BankGetPlayerBalance(aPlayersUUID, bPlayersUUID, Balance)
--- Transfers a specific amount from aPlayer to bPlayer, this is safer then using plugin logic due to transactions
+-- Transfers a specific amount from aPlayer to bPlayer, this is safer then using plugin logic due to SQLite transactions
 ```
 
 
