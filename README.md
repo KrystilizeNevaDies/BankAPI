@@ -69,7 +69,7 @@ PlayersUUID = cMojangAPI:GetUUIDFromPlayerName("xoft", false)
 
 Balance = 10 - 5
 
-PlayersNewBalance = BankGetPlayerBalance(PlayersUUID, Balance)
+PlayersNewBalance = BankChangePlayerBalance(PlayersUUID, Balance)
 -- Changes player's balance by the specified amount and returns the new balance
 ```
 
