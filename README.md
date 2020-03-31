@@ -27,7 +27,7 @@ There is also minimal documentation below.
 
 #### Hooking into BankAPI
 
-In order to load BankAPI, simply call the following function anywhere in your plugin.
+In order to load BankAPI, call the following function anywhere in your plugin.
 ```lua
 dofile(cPluginManager:CallPlugin("BankAPI", "GetExternalAPIPath"))
 ```
