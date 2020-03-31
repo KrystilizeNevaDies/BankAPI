@@ -15,10 +15,57 @@ dofile(cPluginManager:CallPlugin("BankAPI", "GetExternalAPIPath"))
 ```
 (This can be called multiple times with no ill effects)
 
-Then you can use all the functions in the API/ExternalAPI.lua file. See the individual functions there
-for their documentation.
+Then you can use all the functions in the API/ExternalAPI.lua file. 
+See the individual functions there for their documentation.
+There is also minimal documentation below.
 
 
+
+
+
+# API Functions
+
+####Hooking into BankAPI
+
+In order to load BankAPI, simply call the following function anywhere in your plugin.
+```lua
+dofile(cPluginManager:CallPlugin("BankAPI", "GetExternalAPIPath"))
+```
+
+####The following is a sample of each function that BankAPI provides:
+
+#####BankGetPlayerBalance
+
+```lua
+
+PlayersUUID = cMojangAPI:GetUUIDFromPlayerName("xoft", false)
+-- All functions require player's UUID
+
+PlayersBalance = BankGetPlayerBalance(PlayersUUID)
+-- Gets player's balance
+```
+
+#####BankSetPlayerBalance
+
+```lua
+
+PlayersUUID = cMojangAPI:GetUUIDFromPlayerName("xoft", false)
+-- All functions require player's UUID
+
+PlayersNewBalance = BankSetPlayerBalance(PlayersUUID)
+-- Sets player's balance and returns the new balance
+```
+
+#####BankChangePlayerBalance
+
+```lua
+
+PlayersUUID = cMojangAPI:GetUUIDFromPlayerName("xoft", false)
+-- All functions require player's UUID
+
+PlayersNewBalance = BankGetPlayerBalance(PlayersUUID)
+-- Changes player's balance by the specified amount and returns the new balance
+```
 
 
 
@@ -46,3 +93,4 @@ function Initialize()
 	return true
 end
 ```
+
