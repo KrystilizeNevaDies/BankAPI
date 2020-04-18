@@ -34,7 +34,6 @@ function GetPlayerBalance(aPlayerUuid)
 
 	MakeSurePlayerIsPresent(aPlayerUuid)
     for aBal in gDB:urows("SELECT Balance FROM PlayerBalances WHERE UUID='" .. aPlayerUuid .. "';") do
-		LOG("Balance found: " .. aBal)
         return aBal
     end
 
